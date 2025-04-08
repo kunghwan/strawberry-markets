@@ -1,6 +1,6 @@
 interface User {
   email: string;
-  addresss: UserAddress[];
+  addresss: Juso[];
   mobile: string;
   name: string;
   createdAt: Date;
@@ -9,4 +9,11 @@ interface User {
 }
 interface DBUser extends User {
   password: string; // client - no password
+}
+
+interface Juso {
+  id: string; // bdMgtSn
+  roadAddr: string;
+  zipNo: string;
+  rest: string;
 }

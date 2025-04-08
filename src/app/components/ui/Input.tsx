@@ -6,20 +6,24 @@ export const TextInput = ({
   label,
   divClassName,
   labelClassName,
+  message,
   ...props
 }: React.ComponentProps<"input"> & {
-  label: string;
+  label?: string;
   labelClassName?: string;
   divClassName?: string;
+  message?: string | null;
 }) => {
   return (
     <div className={twMerge("flex flex-col gap-y-1", divClassName)}>
-      <label
-        htmlFor={props?.id}
-        className={twMerge("text-xs text-gray-500 ", labelClassName)}
-      >
-        {label}
-      </label>
+      {message && (
+        <label
+          htmlFor={props?.id ?? props?.name}
+          className={twMerge("text-xs text-gray-500 ", labelClassName)}
+        >
+          {message}
+        </label>
+      )}
       <input
         {...props}
         className={twMerge(

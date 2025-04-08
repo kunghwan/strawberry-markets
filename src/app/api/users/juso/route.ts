@@ -23,7 +23,7 @@ export async function POST(req: Request) {
         countPerPage,
         currentPage,
         resultType: "json",
-        confmKey: process.env.NEXT_PUBLLIC_JUSO_API_KEY,
+        confmKey: process.env.NEXT_PUBLIC_JUSO_API_KEY,
       },
     });
     if (data.results.common.errorCode !== "0") {

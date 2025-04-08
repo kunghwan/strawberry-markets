@@ -1,17 +1,11 @@
 "use client";
 
-import {
-  useState,
-  useCallback,
-  ChangeEvent,
-  useTransition,
-  useMemo,
-} from "react";
+import { useState, useCallback, useTransition, useMemo } from "react";
 import { Form, SubmitButton, TextInput } from "../components/ui/Input";
 import {
   emailValidator,
   korValidator,
-  passwordValidator,
+  pwValidator, // ✅ 함수 이름에 맞춰 import
   mobileValidator,
 } from "../utils";
 import axios from "axios";
@@ -21,13 +15,20 @@ import { Loading } from "../components/ui";
 // ✅ 전역 타입 (User, DBUser, Juso)은 import 없이 바로 사용 가능!
 
 const initialState: DBUser = {
-  addresss: [],
+  addresses: [
+    {
+      id: "123123",
+      roadAddr: "대전광역시 중구 중앙로",
+      rest: "501호",
+      zipNo: "121",
+    },
+  ],
   createdAt: new Date(),
-  email: "",
-  mobile: "",
-  name: "",
-  password: "",
   sellerId: null,
+  password: "123123",
+  email: "test@test.com",
+  mobile: "01012341234",
+  name: "테스트유저",
   uid: "",
 };
 
@@ -35,7 +36,7 @@ const Signup = () => {
   const [props, setProps] = useState(initialState);
   const [isPending, startTransition] = useTransition();
 
-  const onChangeP = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+  const onChangeP = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProps((prev) => ({ ...prev, [name]: value }));
   }, []);
@@ -44,93 +45,77 @@ const Signup = () => {
     () => emailValidator(props.email),
     [props.email]
   );
+  const pwMessage = useMemo(
+    () => pwValidator(props.password),
+    [props.password]
+  );
   const nameMessage = useMemo(() => korValidator(props.name), [props.name]);
   const mobileMessage = useMemo(
     () => mobileValidator(props.mobile),
     [props.mobile]
   );
-  const passwordMessage = useMemo(
-    () => passwordValidator(props.password),
-    [props.password]
-  );
 
   const onSubmit = useCallback(() => {
     if (emailMessage) return alert(emailMessage);
-    if (passwordMessage) return alert(passwordMessage);
+    if (pwMessage) return alert(pwMessage);
     if (nameMessage) return alert(nameMessage);
     if (mobileMessage) return alert(mobileMessage);
-    if (props.addresss.length === 0) return alert("기본 배송지를 추가해주세요");
+    if (props.addresses.length === 0) return alert("배송지를 입력해주세요.");
 
     startTransition(async () => {
       try {
-        const { data } = await axios.post("/api/users", props); // ✅ 실제 API 경로 확인
-
-        console.log("회원가입 성공:", data);
+        const { data } = await axios.post("/api/v0/users", props);
+        console.log(data as User);
       } catch (error: any) {
-        alert(error.message || "회원가입 중 오류가 발생했습니다.");
-        console.log(error);
+        alert(error.response.data);
       }
     });
-  }, [props, emailMessage, passwordMessage, nameMessage, mobileMessage]);
+  }, [props]);
 
   return (
-    <Form onSubmit={onSubmit} className="p-5 max-w-100 mx-auto">
+    <Form onSubmit={onSubmit} className="p-5 max-w-100 sm:max-w-125 mx-auto">
       {isPending && <Loading fixed divClassName="bg-white/80" />}
 
       <TextInput
         label="이메일"
-        id="email"
         name="email"
         value={props.email}
         onChange={onChangeP}
         message={emailMessage}
       />
-
       <TextInput
         label="비밀번호"
-        id="password"
         name="password"
         type="password"
         value={props.password}
         onChange={onChangeP}
-        message={passwordMessage}
+        message={pwMessage}
       />
-
       <TextInput
         label="이름"
-        id="name"
         name="name"
+        type="text"
         value={props.name}
         onChange={onChangeP}
         message={nameMessage}
       />
-
       <TextInput
         label="연락처"
-        id="mobile"
         name="mobile"
+        type="text"
         value={props.mobile}
         onChange={onChangeP}
         message={mobileMessage}
       />
 
-      {props.addresss.length === 0 ? (
-        <JusoComponent
-          onChangeAddress={(newAddr) =>
-            setProps((prev) => ({ ...prev, addresss: [newAddr] }))
-          }
-          addresses={props.addresss}
-        />
-      ) : (
-        <TextInput
-          label="기본 배송지"
-          name="add"
-          readOnly
-          value={`${props.addresss[0].roadAddr} ${props.addresss[0].rest}`}
-        />
-      )}
+      <JusoComponent
+        onChangeAddress={(newAddress) =>
+          setProps((prev) => ({ ...prev, addresses: [newAddress] }))
+        }
+        addresses={props.addresses}
+      />
 
-      <SubmitButton className="mt-2.5">회원가입</SubmitButton>
+      <SubmitButton>회원가입</SubmitButton>
     </Form>
   );
 };

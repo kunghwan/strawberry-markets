@@ -25,11 +25,15 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       if (!fbUser) {
         setUser(null);
       } else {
+        const idToken = await fbUser.getIdToken();
         console.log(fbUser.uid);
         try {
-          const { data } = await axios.get("/api/user", {
+          const { data } = await axios.post("/api/user", {
             params: {
               uid: fbUser.uid,
+            },
+            headers: {
+              Authorization: `Bearer ${idToken}`,
             },
           });
           console.log(data);
@@ -48,9 +52,23 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
     return subscribeUser;
   }, []);
 
-  const signout = useCallback(() => {
-    authService.signOut();
-  }, []);
+  // client 유저를 로그아웃
+  //! server에서 쿠키 내용을 삭제
+  const signout = useCallback(() =>new Promise<PromiseResult> (
+    ok => startTransition(
+      async () => {
+        try {
+          await authService.signOut()
+          const {data} = await 
+          
+        } catch (error:any) {
+          return ok({success:false,message:error.message})
+        }
+      }
+    )
+  )
+   
+  , []);
 
   const signin = useCallback(
     async (email: string, password: string) =>

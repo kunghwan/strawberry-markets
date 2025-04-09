@@ -111,7 +111,7 @@ const JusoComponent = ({ onChangeAddress, addresses }: JusoComponentProps) => {
       {juso && (
         <div className="flex flex-col gap-y-2.5 mt-2.5">
           <div className="flex gap-x-2.5">
-            <button className="h-12 border flex-1 text-left px-2.5 rounded bg-gray-50">
+            <button className="h-12 border flex-1 text-left px-2.5 rounded bg-gray-50 truncate">
               {juso.roadAddr}
             </button>
             <SubmitButton

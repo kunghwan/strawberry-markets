@@ -18,9 +18,11 @@ if (!firebase.apps.length) {
 }
 
 const auth = firebase.auth();
-const authService = auth; // ✅ 추가
+const authService = firebase.auth(); // ✅ 추가
 const firestore = firebase.firestore();
 const dbService = firestore; // ✅ 별칭 추가
 const storage = firebase.storage();
+const db = firebase.firestore();
+// const collection = firebase.co
 
-export { auth, authService, firestore, dbService, storage };
+export { auth, authService, firestore, dbService, storage, db };

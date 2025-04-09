@@ -18,3 +18,16 @@ interface Juso {
   zipNo: string;
   rest: string;
 }
+
+interface NewUser {
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+}
+
+interface PromiseResult<T = any> {
+  success?: boolean;
+  message?: string;
+  data?: T;
+}

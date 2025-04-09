@@ -3,11 +3,11 @@ import { authService, firestore } from "@/app/lib/firebase";
 import response from "@/app/api"; // 커스텀 응답 객체
 
 export async function POST(req: Request) {
-  const { addresss, email, mobile, name, password, sellerId } =
+  const { addresses, email, mobile, name, password, sellerId } =
     (await req.json()) as DBUser;
 
   const newUser: DBUser = {
-    addresss,
+    addresses,
     email,
     mobile,
     name,

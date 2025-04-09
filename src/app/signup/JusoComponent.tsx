@@ -1,5 +1,11 @@
 import axios from "axios";
-import { useCallback, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 import { SubmitButton, TextInput } from "../components/ui/Input";
 import { AiOutlineSearch } from "react-icons/ai";
 import { Loading } from "../components/ui";
@@ -21,12 +27,7 @@ const JusoComponent = ({ onChangeAddress, addresses }: JusoComponentProps) => {
   const [isShowing, setIsShowing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [items, setItems] = useState<Juso[]>([]);
-  const [juso, setJuso] = useState<Juso | null>({
-    id: "123123",
-    rest: "",
-    roadAddr: "",
-    zipNo: "",
-  });
+  const [juso, setJuso] = useState<Juso | null>(null);
 
   // 🔹 유효성 메시지
   const message = useMemo(() => {
@@ -44,24 +45,30 @@ const JusoComponent = ({ onChangeAddress, addresses }: JusoComponentProps) => {
 
     startTransition(async () => {
       try {
-        const { data } = await axios.post("/api/v0/juso", {
+        const { data } = await axios.post("/api/users/juso", {
           keyword,
           currentPage: 1,
           countPerPage: 20,
         });
+        console.log(data);
 
         setItems(
           data.map((item: any) => ({
             ...item,
-            id: item.bgMgtSn,
+            id: item.bdMgtSn,
           }))
         );
         setIsShowing(true);
       } catch (error: any) {
         alert(error.message);
+        console.log(error);
       }
     });
   }, [keyword, message]);
+
+  useEffect(() => {
+    console.log(items);
+  }, [items]);
 
   return (
     <div className="relative">
@@ -76,7 +83,7 @@ const JusoComponent = ({ onChangeAddress, addresses }: JusoComponentProps) => {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
-        <SubmitButton onClick={onSubmit} className="px-2.5">
+        <SubmitButton onClick={onSubmit} type="button" className="px-2.5">
           <AiOutlineSearch />
         </SubmitButton>
         {message && <label className="text-red-400 text-xs">{message}</label>}

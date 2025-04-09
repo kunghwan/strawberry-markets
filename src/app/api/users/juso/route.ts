@@ -15,9 +15,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    //     ?currentPage=1&countPerPage
-    //  =10&keyword=인천 남구 주안동 125&confmKey=승인키&hstryYn=Y
-    const { data } = await axios.get(process.env.NEXT_PUBLLIC_JUSO_API_URL!, {
+    const { data } = await axios.get(process.env.NEXT_PUBLIC_JUSO_API_URL!, {
       params: {
         keyword,
         countPerPage,
@@ -31,7 +29,7 @@ export async function POST(req: Request) {
     }
 
     console.log(data, 24);
-    return response.success([data.results.juso]);
+    return response.success(data.results.juso);
   } catch (error: any) {
     return response.error(error.message);
   }

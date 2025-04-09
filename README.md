@@ -1,36 +1,20 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# juso 검색을 위한 api 호출 및 주소 검색 / 추가시 로직
 
-## Getting Started
+1. 회원가입시에는 기본 배송지가 비어있다.
 
-First, run the development server:
+- 회원의 여러 배송지를 담을 그릇으로 addresses 등의 준비
+- juso null / Juso객체 Ctrl + P => index.d.ts
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. 검색을 통해 주소를 찾고 선택했을 때 상세 주소를 입력할 수 있다.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- keyword 검색 진행
+- juso를 또는 items라는 주소들을 담을 그릇 준비
+- 주소 호출이 끝나면 showing등의 상태를 참으로 변경
+- 주소 하나를 클릭했을 때 showing => false로 변경
+- juso(null) => juso의 값으로 변경
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. 상세주소까지 입력했을 때 비로소 기본 배송지 하나를 추가할 수 있다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- juso가 선택되어서 null이 아닐때에만 상세주소를 입력
+- juso Component 자체를 안보이게 또는 삭제
+  1.addresses의 길이가 0이 아니게 되었을 때 삭제 2. searching 불리언 상태로 조절

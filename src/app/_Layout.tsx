@@ -1,5 +1,6 @@
 "use client";
-
+import { AUTH } from "@/contexts";
+import { usePathname, useRouter } from "next/navigation";
 import {
   PropsWithChildren,
   useCallback,
@@ -7,10 +8,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { AUTH } from "./context";
 import { IconType } from "react-icons";
 import {
-  IoCartOutline,
+  IoBasketOutline,
   IoCubeOutline,
   IoGiftOutline,
   IoHomeOutline,
@@ -19,26 +19,19 @@ import {
   IoReceiptOutline,
   IoSearchOutline,
 } from "react-icons/io5";
-import Link from "next/link";
-import { twMerge } from "tailwind-merge";
-import { usePathname, useRouter } from "next/navigation";
 import { TbCherryFilled } from "react-icons/tb";
-
-interface MenuProps {
-  name: string;
-  href: string;
-  Icon: IconType;
-}
+import { twMerge } from "tailwind-merge";
 
 const Root_Layout = ({ children }: PropsWithChildren) => {
   const { user, signout } = AUTH.use();
-  const router = useRouter(); // ✅ 선언
 
-  const pathname = usePathname();
-
+  interface MenuProps {
+    name: string;
+    href: string;
+    Icon: IconType;
+  }
   const menus = useMemo<MenuProps[]>(() => {
     const items: MenuProps[] = [];
-
     const all: MenuProps = {
       name: "전체상품",
       href: "/products",
@@ -49,39 +42,21 @@ const Root_Layout = ({ children }: PropsWithChildren) => {
       href: "/orders",
       Icon: IoReceiptOutline,
     };
-    const search: MenuProps = {
-      name: "검색",
-      href: "",
-      Icon: IoSearchOutline,
-    };
+    const search: MenuProps = { name: "검색", href: "", Icon: IoSearchOutline };
 
     if (!user) {
       items.push(
         all,
-        {
-          name: "로그인",
-          href: "/signin",
-          Icon: IoPersonOutline,
-        },
-        {
-          name: "홈",
-          href: "/",
-          Icon: IoHomeOutline,
-        },
-        {
-          name: "회원가입",
-          href: "/signup",
-          Icon: IoPersonAddOutline,
-        }
+        { name: "로그인", href: "/signin", Icon: IoPersonOutline },
+        { name: "홈", href: "/", Icon: IoHomeOutline },
+        { name: "회원가입", href: "/signup", Icon: IoPersonAddOutline },
+        search
       );
     } else {
-      const isSeller = !!user.sellerId;
-
       if (!user.sellerId) {
         items.push(
           all,
           { ...order, href: `/order?uid=${user.uid}` },
-
           {
             href: `/products?uid=${user.uid}`,
             Icon: IoCubeOutline,
@@ -89,7 +64,7 @@ const Root_Layout = ({ children }: PropsWithChildren) => {
           },
           {
             href: `/cart?uid=${user.uid}`,
-            Icon: IoCartOutline,
+            Icon: IoBasketOutline,
             name: "장바구니",
           },
           search
@@ -97,52 +72,52 @@ const Root_Layout = ({ children }: PropsWithChildren) => {
       }
     }
 
-    console.log(user?.uid);
-
     return items;
   }, [user]);
+
+  const pathname = usePathname();
+  const router = useRouter();
 
   const [keyword, setKeyword] = useState("");
   const [isKeywordShowing, setIsKeywordShowing] = useState(false);
   const keywordRef = useRef<HTMLInputElement>(null);
   const focus = useCallback(
-    () => setTimeout(() => keywordRef.current?.focus(), 500),
+    () => setTimeout(() => keywordRef.current?.focus(), 100),
     []
   );
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full h-15 border-b border-gray-200 bg-white ">
-        <div className="mx-auto max-w-225 flex ">
+      <header className="fixed top-0 left-0 w-full h-15 border-b border-gray-200 bg-white">
+        <div className="mx-auto max-w-225 flex">
           <button
-            className=" text-pink-500  h-15 text-xl items-center justify-center px-2.5 gap-x-2 flex "
+            className="h-15 text-pink-500 text-xl flex items-center px-2.5 gap-x-2.5"
             onClick={() => {
               if (pathname !== "/") {
                 return router.push("/", { scroll: true });
               }
             }}
           >
-            <TbCherryFilled className="text-2xl " />
-
+            <TbCherryFilled className="text-2xl" />
             {!isKeywordShowing && "딸기마켓"}
           </button>
           {isKeywordShowing && (
             <input
-              type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder={isKeywordShowing ? "검색어 입력..." : undefined}
               className={twMerge(
                 isKeywordShowing
-                  ? "outline-none px-2.5 flex-1 bg-pink-50"
+                  ? "outline-none px-2.5 flex-1 focus:text-pink-500"
                   : "hidden"
               )}
               onBlur={() => setIsKeywordShowing(false)}
               ref={keywordRef}
               onKeyDown={(e) => {
                 const { key, nativeEvent } = e;
+                console.log(key, keyword);
                 if (!nativeEvent.isComposing && key === "Enter") {
-                  console.log("검색 ㄱㄱ");
+                  console.log("검색 ㄱㄱ", keyword);
                   setKeyword("");
                   setIsKeywordShowing(false);
                 }
@@ -152,16 +127,15 @@ const Root_Layout = ({ children }: PropsWithChildren) => {
         </div>
       </header>
 
-      <main className="bg-pink-100 py-15 min-h-screen ">
+      <main className="py-15 min-h-screen">
         {children}
-
         {user && <button onClick={signout}>로그아웃</button>}
       </main>
 
       <nav className="fixed bottom-0 left-0 w-full h-15 border-t border-gray-200 bg-white">
         <ul className="flex">
           {menus.map((menu) => {
-            const selected = pathname === menu.href; // 현재 페이지 경로와 비교해서 선택 여부 구현 가능
+            const selected = pathname === menu.href;
 
             return (
               <li key={menu.name} className="flex-1">
@@ -176,10 +150,10 @@ const Root_Layout = ({ children }: PropsWithChildren) => {
                   }}
                   className={twMerge(
                     "w-full h-15 flex justify-center items-center flex-col text-xs",
-                    selected ? "text-pink-500" : "text-red-500"
+                    selected ? "text-pink-500" : "text-gray-500"
                   )}
                 >
-                  <menu.Icon className="text-2xl" />
+                  <menu.Icon className="text-xl" />
                   {menu.name}
                 </button>
               </li>

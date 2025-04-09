@@ -1,25 +1,23 @@
 "use client";
 
-import { useContext, createContext } from "react";
+import { createContext, useContext } from "react";
 
 export interface Context {
-  user: User | null;
+  user: null | User;
   initialized: boolean;
   isPending: boolean;
-  signup: (newUser: DBUser) => Promise<PromiseResult>;
-  signin: (email: string, password: string) => Promise<PromiseResult>;
   signout: () => void;
+  signin: (email: string, password: string) => Promise<PromiseResult>;
+  signup: (newUser: DBUser) => Promise<PromiseResult>;
 }
 
 export const initialState: Context = {
   user: null,
-
   initialized: false,
   isPending: false,
-
-  signup: async () => ({}),
   signin: async () => ({}),
-  signout: async () => ({}),
+  signup: async () => ({}),
+  signout: () => ({}),
 };
 
 export const context = createContext(initialState);

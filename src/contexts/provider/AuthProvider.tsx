@@ -1,23 +1,21 @@
 "use client";
 
+import { authService } from "@/lib";
+import { AUTH } from "../react";
 import {
   PropsWithChildren,
-  useCallback,
   useState,
-  useTransition,
   useEffect,
+  useCallback,
+  useTransition,
 } from "react";
-import { authService } from "../lib";
-import { AUTH } from ".";
 import axios from "axios";
-import { isKorCharacter } from "../utils";
-import SplashScreen from "../loading";
+import { isKorCharacter } from "@/utils";
+import SplashScreen from "@/app/loading";
 
 const AuthProvider = ({ children }: PropsWithChildren) => {
   const [initialized, setInitialized] = useState(false);
-
   const [user, setUser] = useState(AUTH.initialState.user);
-
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -26,25 +24,19 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         setUser(null);
       } else {
         const idToken = await fbUser.getIdToken();
-        console.log(fbUser.uid);
-        try {
-          const { data } = await axios.post("/api/user", {
-            params: {
-              uid: fbUser.uid,
-            },
-            headers: {
-              Authorization: `Bearer ${idToken}`,
-            },
-          });
-          console.log(data);
-          if (data) {
-            setUser(data);
-          }
-        } catch (error: any) {
-          console.log(error);
-          // console.log(error.response.data);
+        const { data } = await axios.get("/api/v0/user", {
+          params: {
+            uid: fbUser.uid,
+          },
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        });
+        if (data) {
+          setUser(data);
         }
       }
+
       setTimeout(() => setInitialized(true), 1000);
     });
 
@@ -54,21 +46,21 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
   // client 유저를 로그아웃
   //! server에서 쿠키 내용을 삭제
-  const signout = useCallback(() =>new Promise<PromiseResult> (
-    ok => startTransition(
-      async () => {
-        try {
-          await authService.signOut()
-          const {data} = await 
-          
-        } catch (error:any) {
-          return ok({success:false,message:error.message})
-        }
-      }
-    )
-  )
-   
-  , []);
+  const signout = useCallback(
+    () =>
+      new Promise<PromiseResult>((ok) =>
+        startTransition(async () => {
+          try {
+            await authService.signOut();
+            await axios.post("/api/v0/user");
+            return ok({ success: true });
+          } catch (error: any) {
+            return ok({ success: false, message: error.message });
+          }
+        })
+      ),
+    []
+  );
 
   const signin = useCallback(
     async (email: string, password: string) =>
@@ -80,19 +72,21 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
               password
             );
             if (!user) {
-              return ok({ success: false, message: "로그인에 실패" });
+              return ok({ success: false, message: "로그인에 실패했습니다." });
             }
-
             return ok({ success: true });
           } catch (error: any) {
             if (!isKorCharacter(error.message)) {
               return ok({ success: false, message: error.message });
             }
+            // console.log(error)
+            return ok({ success: false, message: error.response.data });
           }
         })
       ),
     []
   );
+
   const signup = useCallback(
     async (newUser: DBUser) =>
       new Promise<PromiseResult>((ok) =>
@@ -102,9 +96,11 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
               newUser.email,
               newUser.password
             );
-
             if (!user) {
-              return ok({ success: false, message: "회원가입에 실패" });
+              return ok({
+                success: false,
+                message: "회원가입에 실패했습니다.",
+              });
             }
 
             const body: User = {
@@ -112,18 +108,17 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
               uid: user.uid,
               createdAt: new Date(),
             };
-            //@ ts-ignore
+            //@ts-ignore
             delete body.password;
-            const { data } = await axios.post("api/user/body", {
-              email,
-              password,
-            });
-            setUser(data);
+            const { data } = await axios.post("api/v0/users", body);
+            console.log(data);
+            setUser(body);
             return ok({ success: true });
           } catch (error: any) {
             if (!isKorCharacter(error.message)) {
               return ok({ success: false, message: error.message });
             }
+            // console.log(error)
             return ok({ success: false, message: error.response.data });
           }
         })
@@ -137,14 +132,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
   return (
     <AUTH.context.Provider
-      value={{
-        initialized,
-        signin,
-        signout,
-        user,
-        isPending,
-        signup,
-      }}
+      value={{ user, initialized, isPending, signin, signout, signup }}
     >
       {initialized ? children : <SplashScreen />}
     </AUTH.context.Provider>

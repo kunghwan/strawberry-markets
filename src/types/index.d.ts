@@ -4,26 +4,19 @@ interface User {
   addresses: Juso[];
   mobile: string;
   createdAt: Date;
-  sellerId: string | null; //판매자 사업자 등록번호
+  sellerId: string | null; // 판매자 사업자 등록번호
   uid: string;
 }
 
 interface DBUser extends User {
-  password: string; //client - no password
+  password: string; // client - no password
 }
 
 interface Juso {
-  id: string; //bdMgtSn
+  id: string; // bdMgtSn
   roadAddr: string;
   zipNo: string;
   rest: string;
-}
-
-interface NewUser {
-  id: string;
-  email: string;
-  password: string;
-  name: string;
 }
 
 interface PromiseResult<T = any> {

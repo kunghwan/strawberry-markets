@@ -1,128 +1,124 @@
+import { Loading, SubmitButton, TextInput } from "@/components";
 import axios from "axios";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from "react";
-import { SubmitButton, TextInput } from "../components/ui/Input";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
-import { Loading } from "../components/ui";
-
-interface Juso {
-  id: string;
-  roadAddr: string;
-  zipNo: string;
-  rest: string;
-}
+import { twMerge } from "tailwind-merge";
 
 interface JusoComponentProps {
   onChangeAddress: (address: Juso) => void;
   addresses: Juso[];
 }
 
-const JusoComponent = ({ onChangeAddress, addresses }: JusoComponentProps) => {
+const JusoComponent = ({ addresses, onChangeAddress }: JusoComponentProps) => {
   const [keyword, setKeyword] = useState("");
-  const [isShowing, setIsShowing] = useState(false);
-  const [isPending, startTransition] = useTransition();
-  const [items, setItems] = useState<Juso[]>([]);
-  const [juso, setJuso] = useState<Juso | null>(null);
 
-  // 🔹 유효성 메시지
+  const [isShowing, setIsShowing] = useState(false);
+
+  const [items, setItems] = useState<Juso[]>([]);
+
+  const [juso, setJuso] = useState<null | Juso>({
+    id: "123123",
+    roadAddr: "대전광역시 중구 중앙로 121 (선화동)",
+    zipNo: "34838",
+    rest: "",
+  });
+  const [isPending, startTransition] = useTransition();
+
   const message = useMemo(() => {
     if (keyword.length === 0) {
-      return "검색어를 입력해주세요";
+      return "검색어를 입력해주세요.";
     }
     return null;
   }, [keyword]);
 
-  // 🔹 주소 검색 요청
   const onSubmit = useCallback(() => {
     if (message) {
       return alert(message);
     }
-
     startTransition(async () => {
+      setIsShowing(false);
+      setJuso(null);
       try {
-        const { data } = await axios.post("/api/users/juso", {
+        const { data } = await axios.post("api/v0/juso", {
           keyword,
           currentPage: 1,
           countPerPage: 20,
         });
-        console.log(data);
 
-        setItems(
-          data.map((item: any) => ({
-            ...item,
-            id: item.bdMgtSn,
-          }))
-        );
+        setItems(data.map((item: any) => ({ ...item, id: item.bdMgtSn })));
         setIsShowing(true);
       } catch (error: any) {
         alert(error.message);
-        console.log(error);
       }
     });
   }, [keyword, message]);
 
-  useEffect(() => {
-    console.log(items);
-  }, [items]);
-
   return (
-    <div className="relative">
-      {isPending && <Loading divClassName="bg-white/80" fixed />}
-
-      <div className="flex items-end gap-x-2.5">
-        <TextInput
-          divClassName="flex-1"
-          label="주소"
-          id="keyword"
-          name="keyword"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
-        <SubmitButton onClick={onSubmit} type="button" className="px-2.5">
-          <AiOutlineSearch />
-        </SubmitButton>
-        {message && <label className="text-red-400 text-xs">{message}</label>}
+    <div>
+      <div className="relative">
+        <div className="flex items-end gap-x-2.5">
+          {isPending && <Loading divClassName="bg-white/80" />}
+          <TextInput
+            divClassName="flex-1"
+            label="기본 배송지"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            name="address"
+          />
+          <SubmitButton
+            type="button"
+            onClick={onSubmit}
+            className="px-2.5 size-12 flex justify-center items-center text-2xl"
+          >
+            <AiOutlineSearch />
+          </SubmitButton>
+        </div>
+        {message && (
+          <label htmlFor="address" className="text-red-500 text-xs">
+            {message}
+          </label>
+        )}
       </div>
-
       {isShowing && (
-        <ul className="mt-2.5 flex flex-col gap-y-2.5">
-          {items.map((jusoItem) => (
-            <li key={jusoItem.id}>
-              <button
-                type="button"
-                className="border w-full text-left h-10 px-2.5 rounded bg-gray-50/50"
-                onClick={() => {
-                  setIsShowing(false);
-                  setJuso(jusoItem);
-                }}
-              >
-                {jusoItem.roadAddr}, {jusoItem.zipNo}
-              </button>
-            </li>
-          ))}
+        <ul className="mt-2.5 flex flex-col gap-y-1.5">
+          {items.map((juso) => {
+            const selected = addresses.find(
+              (item) => item.roadAddr === juso.roadAddr
+            );
+            return (
+              <li key={juso.id}>
+                <button
+                  type="button"
+                  className={twMerge(
+                    "w-full text-left h-10 px-2.5 rounded bg-gray-50/80",
+                    selected && "text-pink-500"
+                  )}
+                  onClick={() => {
+                    setIsShowing(false);
+                    setJuso(juso);
+                  }}
+                >
+                  {juso.roadAddr}, {juso.zipNo}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       )}
-
       {juso && (
         <div className="flex flex-col gap-y-2.5 mt-2.5">
           <div className="flex gap-x-2.5">
-            <button className="h-12 border flex-1 text-left px-2.5 rounded bg-gray-50 truncate">
+            <button className="h-12 flex-1 text-left px-2.5 rounded bg-gray-50 truncate">
               {juso.roadAddr}
             </button>
             <SubmitButton
               type="button"
               onClick={onSubmit}
-              className="px-2.5 h-12"
+              className="px-2.5 h-12 flex justify-center items-center"
             >
               재검색
             </SubmitButton>
           </div>
-
           <div className="flex gap-x-2.5 items-end">
             <TextInput
               value={juso.rest}
@@ -132,6 +128,7 @@ const JusoComponent = ({ onChangeAddress, addresses }: JusoComponentProps) => {
               name="rest"
               placeholder="501호"
               label="상세주소"
+              divClassName="flex-1"
             />
             <SubmitButton
               type="button"

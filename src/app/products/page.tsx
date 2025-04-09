@@ -7,28 +7,28 @@ const fetchUserInfo = async (props: any) => {
   if (!token) {
     return console.log("no token");
   }
-
   const idToken = token.value;
 
   const url = process.env.NEXT_PUBLIC_FB_URL!;
-  console.log(url, process.env.NEXT_PUBLIC_API_KEY, 12);
 
   try {
     const { data } = await axios.post(url, { idToken });
-    console.log(data, 18);
     const { uid } = await props.params;
     const foundUser = data.users.find((user: any) => user.localId === uid);
     if (!foundUser) {
-      return console.log("본인의 아이디가 아님");
+      return console.log("본인의 아이디가 아닙니다.");
     }
-  } catch (error) {
+    console.log(
+      "본인 페이지가 맞습니다. 데이터를 가져오면 됩니다. 데이터 가져오셈..."
+    );
+  } catch (error: any) {
     console.log(error);
   }
 };
 
 const MyProducts = async (props: any) => {
-  const { uid } = await props.params;
-  return <div>MyProducts:{uid}</div>;
+  await fetchUserInfo(props);
+  return <div>MyProducts</div>;
 };
 
 export default MyProducts;

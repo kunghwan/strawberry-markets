@@ -1,5 +1,6 @@
 "use client";
 
+import { useTextInput } from "@/components";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -56,13 +57,12 @@ const CustomLayout = ({ children }: PropsWithChildren) => {
   }, []);
 
   const pathname = usePathname();
-
+  const Keyword = useTextInput();
   const ref = useRef<HTMLInputElement>(null);
   const focus = useCallback(() => {
     setTimeout(() => ref.current?.focus(), 100);
   }, []);
 
-  const [focused, setFocused] = useState(false);
   const [keyword, setKeyword] = useState("");
 
   return (
@@ -73,19 +73,14 @@ const CustomLayout = ({ children }: PropsWithChildren) => {
             href="/"
             className="text-xl gap-x-2.5 text-theme font-black  h-15 "
           >
-            <GiStrawberry className="text-3xl" /> {!focused && "딸기마켓"}
+            <GiStrawberry className="text-3xl" />{" "}
+            {!Keyword.focused && "딸기마켓"}
           </Link>
-          <input
-            type="text"
-            className={twMerge(
-              " flex-1 w-full outline-none pr-2.5",
-              focused && "text-theme"
-            )}
-            ref={ref}
+
+          <Keyword.TextInput
             value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
+            onChangeText={setKeyword}
+            placeholder="검색어를 입력해주세요"
             onKeyDown={(e) => {
               const { key, nativeEvent } = e;
               if (key === "Enter" && !nativeEvent.isComposing) {
@@ -96,6 +91,9 @@ const CustomLayout = ({ children }: PropsWithChildren) => {
                 console.log("검색 ㄱㄱ");
               }
             }}
+            className={twMerge(" pl-0", Keyword.focused && "text-theme")}
+            contentClassName="h-15 "
+            containerClassName="flex-1"
           />
         </div>
       </header>
@@ -116,7 +114,7 @@ const CustomLayout = ({ children }: PropsWithChildren) => {
                   )}
                   onClick={() => {
                     if (menu.name === "검색" || menu.href.length === 0) {
-                      focus();
+                      Keyword.focus();
                     }
                   }}
                 >

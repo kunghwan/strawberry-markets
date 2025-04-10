@@ -1,5 +1,6 @@
 "use client";
 import { AUTH } from "@/contexts";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   PropsWithChildren,
@@ -56,14 +57,14 @@ const Root_Layout = ({ children }: PropsWithChildren) => {
       if (!user.sellerId) {
         items.push(
           all,
-          { ...order, href: `/order?uid=${user.uid}` },
+          { ...order, href: `/${user.uid}/order` },
           {
-            href: `/products?uid=${user.uid}`,
+            href: `/${user.uid}/products`,
             Icon: IoCubeOutline,
             name: "나의상품",
           },
           {
-            href: `/cart?uid=${user.uid}`,
+            href: `/${user.uid}/cart`,
             Icon: IoBasketOutline,
             name: "장바구니",
           },
@@ -127,10 +128,7 @@ const Root_Layout = ({ children }: PropsWithChildren) => {
         </div>
       </header>
 
-      <main className="py-15 min-h-screen">
-        {children}
-        {user && <button onClick={signout}>로그아웃</button>}
-      </main>
+      <main className="py-15 min-h-screen">{children}</main>
 
       <nav className="fixed bottom-0 left-0 w-full h-15 border-t border-gray-200 bg-white">
         <ul className="flex">

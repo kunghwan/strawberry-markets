@@ -6,9 +6,10 @@ export interface Context {
   user: null | User;
   initialized: boolean;
   isPending: boolean;
-  signout: () => void;
+  signout: () => Promise<PromiseResult>;
   signin: (email: string, password: string) => Promise<PromiseResult>;
   signup: (newUser: DBUser) => Promise<PromiseResult>;
+  onUpdate: (target: keyof User, value: any) => Promise<PromiseResult>;
 }
 
 export const initialState: Context = {
@@ -17,7 +18,8 @@ export const initialState: Context = {
   isPending: false,
   signin: async () => ({}),
   signup: async () => ({}),
-  signout: () => ({}),
+  signout: async () => ({}),
+  onUpdate: async () => ({}),
 };
 
 export const context = createContext(initialState);

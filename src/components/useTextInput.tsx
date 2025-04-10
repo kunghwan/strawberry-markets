@@ -13,39 +13,44 @@ import { twMerge } from "tailwind-merge";
 interface Props extends ComponentProps<"input"> {
   label?: string;
   labelClassName?: string;
-  containerClassName?: string;
   contentClassName?: string;
-  onChangeText?: (value: string, event?: ChangeEvent<HTMLInputElement>) => void;
+  containerClassName?: string;
+  messageClassName?: string;
+  onChangeText?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
+  message?: string | null;
 }
 
 const useTextInput = () => {
   const [focused, setFocused] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
-  const focus = useCallback(() => {
-    setTimeout(() => ref.current?.focus(), 100);
-  }, []);
+  const focus = useCallback(
+    () => setTimeout(() => ref.current?.focus(), 100),
+    []
+  );
   const inputId = useId();
 
   const TextInput = useCallback(
     ({
+      message,
       label,
-      containerClassName,
-      contentClassName,
       labelClassName,
       onChangeText,
+      contentClassName,
+      containerClassName,
+      messageClassName,
       ...props
     }: Props) => {
       return (
         <div className={twMerge("gap-1", containerClassName)}>
           {label && (
             <label
-              htmlFor={props.id ?? inputId}
+              htmlFor={props?.id ?? inputId}
               className={twMerge("text-gray-500 text-xs", labelClassName)}
             >
               {label}
             </label>
           )}
-          <div className={contentClassName}>
+          <div className={twMerge("h-12", contentClassName)}>
             <input
               {...props}
               id={props?.id ?? inputId}
@@ -55,24 +60,31 @@ const useTextInput = () => {
               onChange={(e) => {
                 if (onChangeText) {
                   onChangeText(e.target.value, e);
-                }
-                if (props?.onChange) {
+                } else if (props?.onChange) {
                   props.onChange(e);
                 }
               }}
               className={twMerge(
-                "flex-1 w-full outline-none px-5",
+                "flex-1 w-full outline-none px-2.5 rounded border border-gray-200 focus:text-theme focus:border-theme",
                 props?.className
               )}
             />
           </div>
+          {message && (
+            <label
+              htmlFor={props?.id ?? inputId}
+              className={twMerge("text-red-500 text-xs", messageClassName)}
+            >
+              {message}
+            </label>
+          )}
         </div>
       );
     },
     [inputId]
   );
 
-  return { TextInput, focus, focused, ref };
+  return { focused, ref, focus, TextInput };
 };
 
 export default useTextInput;

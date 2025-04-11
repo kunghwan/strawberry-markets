@@ -87,7 +87,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
             //! 회원가입 정보를 데이터베이스 저장
             //@ts-ignore
             delete newUser.password;
-            const storedUser: User = { ...newUser };
+            const storedUser: User = { ...newUser, uid: user.uid };
             console.log(storedUser);
 
             //@ts-ignore

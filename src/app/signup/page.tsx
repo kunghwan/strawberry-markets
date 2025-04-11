@@ -87,7 +87,8 @@ const Signup = () => {
       return;
     }
 
-    const { success, message, data } = await signup(signupProps);
+    //data추가 한거 뺌
+    const { success, message } = await signup(signupProps);
     if (!success || message) {
       return alert(message ?? "회원가입시 문제 발생");
     }

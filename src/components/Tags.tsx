@@ -7,8 +7,9 @@ export const Form = ({
   Submit,
   children,
   className,
+  btnClassName,
   ...props
-}: ComponentProps<"form"> & { Submit?: ReactNode }) => {
+}: ComponentProps<"form"> & { Submit?: ReactNode; btnClassName?: string }) => {
   return (
     <form
       {...props}
@@ -24,7 +25,7 @@ export const Form = ({
       )}
     >
       {children}
-      {Submit && <div>{Submit}</div>}
+      <div className={twMerge("mt-2.5 flex-row", btnClassName)}>{Submit}</div>
     </form>
   );
 };

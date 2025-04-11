@@ -4,10 +4,12 @@ import { useTextInput } from "@/components";
 import { Form } from "@/components/Tags";
 import { AUTH } from "@/contexts";
 import { emailValidator, passwordValidator } from "@/utils";
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 
 const Signin = () => {
-  const { user } = AUTH.use();
+  //! useEffect 등으로 모든 회원의 이메일을 가져오기
+  const { user, signin } = AUTH.use();
   const [loginProps, setLoginProps] = useState({
     email: "test@test.com",
     password: "123123",
@@ -19,6 +21,7 @@ const Signin = () => {
   const onChangeL = useCallback(
     (value: string, event: ChangeEvent<HTMLInputElement>) => {
       setLoginProps((prev) => ({ ...prev, [event.target.name]: value }));
+      // obg['name'] obg,name
     },
     []
   );
@@ -33,7 +36,10 @@ const Signin = () => {
     [loginProps.password]
   );
 
-  const onSubmit = useCallback(() => {
+  const router = useRouter();
+
+  //! next/navigation (0)  !== netxt/router (X)
+  const onSubmit = useCallback(async () => {
     if (emailMessage) {
       alert(emailMessage);
       return Email.focus();
@@ -43,12 +49,19 @@ const Signin = () => {
       return Password.focus();
     }
 
+    const { success, message } = await signin(
+      loginProps.email,
+      loginProps.password
+    );
+
+    if (!success || message) {
+      return alert(message ?? "문제생김");
+    }
+    alert("환영합니다");
+    router.push("/", { scroll: true });
+
     console.log({ loginProps });
   }, [emailMessage, passwordMessage, loginProps, Email, Password]);
-
-  useEffect(() => {
-    console.log(loginProps, user);
-  }, [loginProps, user]);
 
   if (user) {
     return <h1>유저에게 제한된 페이지입니다.</h1>;
@@ -56,10 +69,18 @@ const Signin = () => {
 
   return (
     <Form
+      btnClassName="flex-col h-25 h-[106px]"
       Submit={
-        <button className="primary flex-1 p-2" onSubmit={onSubmit}>
-          로그인
-        </button>
+        <>
+          <button className="primary  p-2">로그인</button>
+          <button
+            className="bg-gray-100"
+            type="button"
+            onClick={() => router.push("/signup", { scroll: true })}
+          >
+            회원가입
+          </button>
+        </>
       }
     >
       <Email.TextInput

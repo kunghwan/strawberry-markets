@@ -17,17 +17,22 @@ interface Props extends ComponentProps<"input"> {
   containerClassName?: string;
   messageClassName?: string;
   onChangeText?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
+
   message?: string | null;
+  onSubmitEditing?: (
+    value: string,
+    event: ChangeEvent<HTMLInputElement>
+  ) => void;
 }
 
 const useTextInput = () => {
   const [focused, setFocused] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
-  const focus = useCallback(
-    () => setTimeout(() => ref.current?.focus(), 100),
-    []
-  );
   const inputId = useId();
+
+  const focus = useCallback(() => {
+    setTimeout(() => ref.current?.focus(), 100);
+  }, []);
 
   const TextInput = useCallback(
     ({
@@ -38,6 +43,7 @@ const useTextInput = () => {
       contentClassName,
       containerClassName,
       messageClassName,
+      onSubmitEditing,
       ...props
     }: Props) => {
       return (
@@ -55,6 +61,17 @@ const useTextInput = () => {
               {...props}
               id={props?.id ?? inputId}
               ref={ref}
+              onKeyDown={(e) => {
+                const { key, nativeEvent } = e;
+                if (key === "Enter" && !nativeEvent.isComposing) {
+                  if (onSubmitEditing) {
+                    onSubmitEditing((e.target as HTMLInputElement).value, e);
+                  }
+                  if (props?.onKeyDown) {
+                    props.onKeyDown(e);
+                  }
+                }
+              }}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               onChange={(e) => {

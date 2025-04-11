@@ -9,7 +9,8 @@ import {
   useTransition,
 } from "react";
 import { AUTH } from "../react.context";
-import { authService, dbService, FBCollection } from "@/lib";
+import { auth, authService, dbService, FBCollection } from "@/lib";
+import { GiStrawberry } from "react-icons/gi";
 
 const AuthProvider = ({ children }: PropsWithChildren) => {
   const [initialized, setInitialized] = useState(false);
@@ -146,6 +147,33 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
     console.log({ user });
   }, [user]);
 
+  useEffect(() => {
+    const subscribeUser = authService.onAuthStateChanged(async (fbUser) => {
+      if (!fbUser) {
+        console.log("not logged in");
+      } else {
+        const { uid } = fbUser;
+
+        const snap = await ref.doc(uid).get();
+        const data = snap.data() as User;
+        if (!data) {
+          console.log("no user data");
+        } else {
+          setUser(data ?? null);
+        }
+      }
+
+      setTimeout(() => {
+        setInitialized(true);
+      }, 100);
+
+      setInitialized(true);
+    });
+
+    subscribeUser;
+    return subscribeUser;
+  }, []);
+
   return (
     <AUTH.Context.Provider
       value={{
@@ -159,7 +187,14 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         user,
       }}
     >
-      {children}
+      {!initialized ? (
+        <div className="modal con justify-center items-center text-theme bg-white">
+          <GiStrawberry className="text-6xl" />
+          <h1 className="text-2xl font-black">딸기마켓</h1>
+        </div>
+      ) : (
+        children
+      )}
     </AUTH.Context.Provider>
   );
 };

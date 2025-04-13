@@ -3,6 +3,7 @@
 import {
   ChangeEvent,
   ComponentProps,
+  KeyboardEvent,
   useCallback,
   useId,
   useRef,
@@ -16,23 +17,20 @@ interface Props extends ComponentProps<"input"> {
   contentClassName?: string;
   containerClassName?: string;
   messageClassName?: string;
-  onChangeText?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
-
   message?: string | null;
-  onSubmitEditing?: (
-    value: string,
-    event: ChangeEvent<HTMLInputElement>
-  ) => void;
+
+  onChangeText?: (value: string, event: ChangeEvent<HTMLInputElement>) => void;
+  onSubmitEditing?: (e: KeyboardEvent<HTMLInputElement>) => void;
 }
 
 const useTextInput = () => {
   const [focused, setFocused] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
+  const focus = useCallback(
+    () => setTimeout(() => ref.current?.focus(), 100),
+    []
+  );
   const inputId = useId();
-
-  const focus = useCallback(() => {
-    setTimeout(() => ref.current?.focus(), 100);
-  }, []);
 
   const TextInput = useCallback(
     ({
@@ -60,31 +58,32 @@ const useTextInput = () => {
             <input
               {...props}
               id={props?.id ?? inputId}
+              onChange={(e) => {
+                if (onChangeText) {
+                  return onChangeText(e.target.value, e);
+                }
+                if (props?.onChange) {
+                  props.onChange(e);
+                }
+              }}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              className={twMerge(
+                "flex-1 w-full outline-none px-2.5 rounded border border-gray-200 focus:text-theme focus:border-theme",
+                props?.className
+              )}
               ref={ref}
               onKeyDown={(e) => {
                 const { key, nativeEvent } = e;
                 if (key === "Enter" && !nativeEvent.isComposing) {
                   if (onSubmitEditing) {
-                    onSubmitEditing((e.target as HTMLInputElement).value, e);
+                    onSubmitEditing(e);
                   }
                   if (props?.onKeyDown) {
                     props.onKeyDown(e);
                   }
                 }
               }}
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
-              onChange={(e) => {
-                if (onChangeText) {
-                  onChangeText(e.target.value, e);
-                } else if (props?.onChange) {
-                  props.onChange(e);
-                }
-              }}
-              className={twMerge(
-                "flex-1 w-full outline-none px-2.5 rounded border border-gray-200 focus:text-theme focus:border-theme",
-                props?.className
-              )}
             />
           </div>
           {message && (

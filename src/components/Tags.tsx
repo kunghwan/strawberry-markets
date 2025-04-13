@@ -5,8 +5,6 @@ import { twMerge } from "tailwind-merge";
 
 export const Form = ({
   Submit,
-  children,
-  className,
   btnClassName,
   ...props
 }: ComponentProps<"form"> & { Submit?: ReactNode; btnClassName?: string }) => {
@@ -21,10 +19,10 @@ export const Form = ({
       }}
       className={twMerge(
         "max-w-100 mx-auto flex flex-col gap-y-2.5",
-        className
+        props?.className
       )}
     >
-      {children}
+      {props?.children}
       <div className={twMerge("mt-2.5 flex-row", btnClassName)}>{Submit}</div>
     </form>
   );

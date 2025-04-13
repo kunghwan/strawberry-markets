@@ -9,7 +9,7 @@ import {
   useTransition,
 } from "react";
 import { AUTH } from "../react.context";
-import { auth, authService, dbService, FBCollection } from "@/lib";
+import { authService, dbService, FBCollection } from "@/lib";
 import { GiStrawberry } from "react-icons/gi";
 
 const AuthProvider = ({ children }: PropsWithChildren) => {
@@ -36,7 +36,6 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
             }
             const snap = await ref.doc(user.uid).get();
             const data = snap.data() as User;
-
             if (!data) {
               return resolve({
                 message:
@@ -89,11 +88,10 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
             //@ts-ignore
             delete newUser.password;
             const storedUser: User = { ...newUser, uid: user.uid };
-            console.log(storedUser);
 
             //@ts-ignore
             delete storedUser.password;
-            await ref.doc(user.uid || storedUser.uid).set(storedUser);
+            await ref.doc(user.uid).set(storedUser);
 
             return resolve({ success: true });
           } catch (error: any) {
@@ -153,7 +151,6 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         console.log("not logged in");
       } else {
         const { uid } = fbUser;
-
         const snap = await ref.doc(uid).get();
         const data = snap.data() as User;
         if (!data) {
@@ -165,9 +162,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
       setTimeout(() => {
         setInitialized(true);
-      }, 100);
-
-      setInitialized(true);
+      }, 1000);
     });
 
     subscribeUser;

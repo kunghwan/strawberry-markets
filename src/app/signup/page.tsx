@@ -1,47 +1,69 @@
 "use client";
 
-import { Form, Loading } from "@/components";
+import { Form, Loading, useTextInput } from "@/components";
 import {
   emailValidator,
   korValidator,
   mobileValidator,
   passwordValidator,
 } from "@/utils";
-import { ChangeEvent, useCallback, useMemo, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import JusoComponent, { JusoRef } from "./JusoComponent";
 import { AUTH } from "@/contexts";
-import { useRouter } from "next/navigation"; // ✅ 추가
+import { useNavi } from "@/hooks";
 
-// 타입
-type SignupProps = User & { password: string };
+// SSR 나중에 해보기
+
+// type SignupProps = User & { password: string }
+interface SignupProps extends User {
+  password: string;
+}
+
+const 겁나긴이름의객체가만들어진객체 = {
+  값1: "",
+  값2: 123,
+};
+겁나긴이름의객체가만들어진객체.값1;
+겁나긴이름의객체가만들어진객체["값1"];
+
+const { 값1, 값2 } = 겁나긴이름의객체가만들어진객체;
 
 const Signup = () => {
-  const jusoRef = useRef<JusoRef>(null);
-  const nameRef = useRef<HTMLInputElement>(null);
-  const mobileRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  const router = useRouter(); // ✅ 라우터 선언
-
   const [signupProps, setSignupProps] = useState<SignupProps>({
     createdAt: new Date(),
     email: "test@test.com",
-    name: "유경환",
+    name: "김딸기",
     password: "123123",
-    uid: "",
     sellerId: null,
+    uid: "",
     jusoes: [],
-    mobile: "01058772136",
+    mobile: "01012341234",
   });
+  // de-structure // parse
+  const { email, name, password, jusoes, mobile } = signupProps;
+  const [confirmPassword, setConfirmPassword] = useState("123123");
 
-  const { email, password, name, mobile, jusoes } = signupProps;
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const Email = useTextInput();
+  const Password = useTextInput();
+  const ConfirmPassword = useTextInput();
+  const Name = useTextInput();
+  const Mobile = useTextInput();
 
-  const onChangeS = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setSignupProps((prev) => ({ ...prev, [name]: value }));
-  }, []);
+  const jusoRef = useRef<JusoRef>(null);
+
+  const onChangeS = useCallback(
+    (value: string, event: ChangeEvent<HTMLInputElement>) => {
+      setSignupProps((prev) => ({ ...prev, [event.target.name]: value }));
+    },
+    []
+  );
 
   const nameMessage = useMemo(() => korValidator(name), [name]);
   const mobileMessage = useMemo(() => mobileValidator(mobile), [mobile]);
@@ -51,34 +73,39 @@ const Signup = () => {
     [password]
   );
   const confirmPasswordMessage = useMemo(() => {
+    if (passwordValidator(confirmPassword)) {
+      return passwordValidator(confirmPassword);
+    }
+    // 위의 Validation == null
     if (password !== confirmPassword) {
       return "비밀번호가 일치하지 않습니다.";
     }
-    return passwordValidator(confirmPassword);
+    return null;
   }, [password, confirmPassword]);
+  //! zod , react-hook-form
 
-  const { signup, isPending } = AUTH.use();
-
+  const { user, signup, isPending } = AUTH.use();
+  const { navi } = useNavi();
   const onSubmit = useCallback(async () => {
     if (nameMessage) {
       alert(nameMessage);
-      return nameRef.current?.focus();
+      return Name.focus();
     }
     if (mobileMessage) {
       alert(mobileMessage);
-      return mobileRef.current?.focus();
+      return Mobile.focus();
     }
     if (emailMessage) {
       alert(emailMessage);
-      return emailRef.current?.focus();
+      return Email.focus();
     }
     if (passwordMessage) {
       alert(passwordMessage);
-      return passwordRef.current?.focus();
+      return Password.focus();
     }
     if (confirmPasswordMessage) {
       alert(confirmPasswordMessage);
-      return confirmPasswordRef.current?.focus();
+      return ConfirmPassword.focus();
     }
     if (jusoes.length === 0) {
       alert("기본 배송지를 입력해주세요.");
@@ -87,88 +114,84 @@ const Signup = () => {
       return;
     }
 
-    //data추가 한거 뺌
     const { success, message } = await signup(signupProps);
     if (!success || message) {
-      return alert(message ?? "회원가입시 문제 발생");
+      return alert(message ?? "회원가입 시 문제가 발생했습니다.");
     }
 
-    alert("회원가입 축하");
-    router.push("/"); // ✅ 페이지 이동
+    alert("회원가입을 축하합니다.");
+    navi("/");
   }, [
+    navi,
     nameMessage,
     mobileMessage,
     emailMessage,
     passwordMessage,
     confirmPasswordMessage,
     jusoes,
-    signup,
     signupProps,
-    router, // ✅ 의존성에 추가
+    signup,
+    // jusoRef,
   ]);
 
+  useEffect(() => {
+    console.log(signupProps, user);
+  }, [signupProps, user]);
   return (
-    <div>
-      {isPending && (
-        <Loading
-          container=" "
-          wrap="bg-white p-10 border-gray-200 shadow-xl rounded-2xl"
-        />
-      )}
+    <div className="">
+      {isPending && <Loading />}
       <Form
         onSubmit={onSubmit}
         className="w-full p-5"
         Submit={<button className="primary flex-1">회원가입</button>}
       >
-        <input
-          ref={nameRef}
+        <Name.TextInput
+          onChangeText={onChangeS}
+          label="이름"
+          placeholder="예) 박보검"
           name="name"
           value={name}
-          onChange={onChangeS}
-          placeholder="예 ) 박보검"
-          className="w-full border p-2 mb-2"
+          message={nameMessage}
         />
-        <input
-          ref={mobileRef}
+        <Mobile.TextInput
+          onChangeText={onChangeS}
+          label="휴대전화 번호"
+          placeholder="010-1234-1234"
           name="mobile"
           value={mobile}
-          onChange={onChangeS}
-          placeholder="010-1234-5678"
-          className="w-full border p-2 mb-2"
+          message={mobileMessage}
         />
-        <input
-          ref={emailRef}
-          name="email"
+        <Email.TextInput
           value={email}
-          onChange={onChangeS}
+          onChangeText={onChangeS}
+          label="이메일"
           placeholder="your@email.com"
-          className="w-full border p-2 mb-2"
+          name="email"
+          message={emailMessage}
         />
-        <input
-          ref={passwordRef}
-          name="password"
+        <Password.TextInput
           value={password}
-          onChange={onChangeS}
+          onChangeText={onChangeS}
+          label="비밀번호"
+          type="password"
           placeholder="6~18자리"
-          type="password"
-          className="w-full border p-2 mb-2"
+          name="password"
+          message={passwordMessage}
         />
-        <input
-          ref={confirmPasswordRef}
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="********"
+        <ConfirmPassword.TextInput
+          message={confirmPasswordMessage}
+          onChangeText={setConfirmPassword}
+          label="비밀번호 확인"
           type="password"
-          className="w-full border p-2 mb-2"
+          placeholder="* * * * * * * *"
+          value={confirmPassword}
         />
 
         {/* 주소 컴포넌트 */}
         <JusoComponent
-          jusoes={jusoes}
-          onChangeJ={(juso) =>
-            setSignupProps((prev) => ({ ...prev, jusoes: juso }))
-          }
           ref={jusoRef}
+          jusoes={jusoes}
+          onChangeJ={(j) => setSignupProps((prev) => ({ ...prev, jusoes: j }))}
         />
       </Form>
     </div>

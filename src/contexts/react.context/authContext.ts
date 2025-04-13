@@ -3,14 +3,16 @@
 import { useContext, createContext } from "react";
 
 export interface Props {
-  user: User | null;
+  user: null | User;
   initialized: boolean;
   isPending: boolean; // useTransition React v19
+
   signin: (email: string, password: string) => PromiseResult;
   signout: () => PromiseResult;
   signup: (newUser: User & { password: string }) => PromiseResult;
+
   updateOne: (target: keyof User, value: any) => PromiseResult;
-  updateAll: (updateUser: User) => PromiseResult;
+  updateAll: (updatedUser: User) => PromiseResult;
 }
 
 export const initialState: Props = {

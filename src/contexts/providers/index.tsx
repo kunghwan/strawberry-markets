@@ -1,8 +1,8 @@
 import { PropsWithChildren } from "react";
-import AppProvider from "./AuthProvider";
+import AuthProvider from "./AuthProvider";
 
-const App = ({ children }: PropsWithChildren) => {
-  return <AppProvider>{children}</AppProvider>;
+const AppProvider = ({ children }: PropsWithChildren) => {
+  return <AuthProvider>{children}</AuthProvider>;
 };
 
-export default App;
+export default AppProvider;

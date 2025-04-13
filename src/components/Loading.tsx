@@ -1,3 +1,4 @@
+import { HTMLAttributes } from "react";
 import { ImSpinner5 } from "react-icons/im";
 import { twMerge } from "tailwind-merge";
 
@@ -23,14 +24,19 @@ const Loading = ({
         container
       )}
     >
-      <div className={twMerge(" items-center gap-y-2.5", wrap)}>
+      <div
+        className={twMerge(
+          "items-center",
+          "bg-white p-10 border border-gray-200 shadow-xl rounded-2xl",
+          wrap
+        )}
+      >
         <ImSpinner5
           className={twMerge("text-4xl animate-spin text-theme", icon)}
         />
         <p
           className={twMerge(
             "font-light animate-pulse text-theme",
-
             messageClassName
           )}
         >

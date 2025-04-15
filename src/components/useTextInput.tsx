@@ -84,6 +84,7 @@ const useTextInput = () => {
                   }
                 }
               }}
+              type={props?.type ?? "number"}
             />
           </div>
           {message && (

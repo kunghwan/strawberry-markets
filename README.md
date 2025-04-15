@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 제목
 
-## Getting Started
+## 서비스 대상: 관리자, 교사, 학생 (자취하는데 요리를 좋아하지만 요리는 못하고 요리가 귀찮지만 한 번 정도는 맛있게 만들어보고 싶은 사람들), 간단한 레시피 올리는 사람들
 
-First, run the development server:
+### 서비스 기능:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. 레시피 추천 2.레시피 즐겨찾기에 추가
+2. 레시피 보고 식탁에 올려서 요리하기
+3. 도장을 찍어서 해당 레시피의 재료를 토대로 예상 가격을 도출 할 수 있음
+4. 레시피 마다 식당에서 사먹으면 얼마가 될지 금액이 있고
+5. 레시피마다 식당에서 사먹으면 얼마가 될지 금액이 있고
+6. 내가 절약할 수 있는 금액 30일 기준 이번달에 내가 절약한 금액은 얼마다.
+
 ```
+1. 관리자가 교사, 학생 아이디를 생성 및 기본 정보 수정
+2. 교사
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   - 과제 전달
+   - 진도 기간 및 범위 설정
+   - 공지사항 작성 알림 전달
+   - Q&A
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. 학생
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 과제 제출
+- 공지사항 읽기
+- 수업 진도 내용 듣기
+- 수업 진도 관련 시험
+- 학업 관련 그래프 볼수 있음
+```
